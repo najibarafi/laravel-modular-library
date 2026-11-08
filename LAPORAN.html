@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan Praktikum Backend Development — Sistem Perpustakaan</title>
+<style>
+@page {
+    size: A4;
+    margin: 17mm 15mm 18mm 15mm;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: #1f2937;
+    margin: 0;
+    background: #ffffff;
+}
+
+h1 {
+    font-size: 23pt;
+    line-height: 1.25;
+    color: #0f172a;
+    text-align: center;
+    margin: 30mm 0 6mm;
+    letter-spacing: 0.3px;
+}
+
+h1 + h2 {
+    page-break-before: avoid;
+    text-align: center;
+    border: none;
+    color: #1d4ed8;
+    font-size: 15pt;
+    margin-top: 0;
+}
+
+h1 + h2 + h3 {
+    text-align: center;
+    border: none;
+    color: #334155;
+    font-size: 13pt;
+    margin-top: 2mm;
+}
+
+h2 {
+    page-break-before: always;
+    font-size: 16pt;
+    color: #0f172a;
+    border-bottom: 2.5px solid #1d4ed8;
+    padding-bottom: 2mm;
+    margin: 0 0 5mm;
+}
+
+h3 {
+    font-size: 12.5pt;
+    color: #1e3a8a;
+    margin: 6mm 0 2mm;
+    page-break-after: avoid;
+}
+
+h4 {
+    font-size: 11pt;
+    color: #334155;
+    margin: 4mm 0 1.5mm;
+    page-break-after: avoid;
+}
+
+p { margin: 0 0 2.6mm; text-align: justify; }
+
+ul, ol { margin: 0 0 3mm 5mm; padding-left: 4mm; }
+li { margin-bottom: 1.2mm; }
+
+a { color: #1d4ed8; text-decoration: none; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 3mm 0 5mm;
+    font-size: 9.3pt;
+    page-break-inside: avoid;
+}
+
+th, td {
+    border: 1px solid #cbd5e1;
+    padding: 1.6mm 2.2mm;
+    vertical-align: top;
+    text-align: left;
+}
+
+th {
+    background: #e2e8f0;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+tr:nth-child(even) td { background: #f8fafc; }
+
+pre {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-left: 3px solid #1d4ed8;
+    border-radius: 3px;
+    padding: 2.5mm 3mm;
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    font-size: 8.2pt;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+    margin: 2.5mm 0 4mm;
+}
+
+code {
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    font-size: 9pt;
+    background: #f1f5f9;
+    padding: 0.3mm 1mm;
+    border-radius: 2px;
+}
+
+pre code { background: none; padding: 0; font-size: inherit; }
+
+blockquote {
+    border-left: 3px solid #94a3b8;
+    margin: 3mm 0;
+    padding: 1mm 4mm;
+    color: #475569;
+    background: #f8fafc;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 3mm auto 1.5mm;
+    border: 1px solid #cbd5e1;
+    border-radius: 3px;
+    page-break-inside: avoid;
+}
+
+img + em, p > em:only-child {
+    display: block;
+    text-align: center;
+    font-size: 9pt;
+    color: #475569;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #cbd5e1;
+    margin: 5mm 0;
+}
+
+strong { color: #0f172a; }
+</style>
+</head>
+<body>
+<h1>LAPORAN PRAKTIKUM BACKEND DEVELOPMENT</h1>
+<h2>Pertemuan 6 — Modular Monolith dan Domain-Driven Design</h2>
+<h3>Sistem Perpustakaan Berbasis Laravel</h3>
+<p><br></p>
+<p><strong>Disusun oleh:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nama</td>
+<td>[Nama Mahasiswa]</td>
+</tr>
+<tr>
+<td>NIM</td>
+<td>[NIM]</td>
+</tr>
+<tr>
+<td>Kelas</td>
+<td>[Kelas]</td>
+</tr>
+<tr>
+<td>Mata Kuliah</td>
+<td>Backend Development</td>
+</tr>
+<tr>
+<td>Dosen Pengampu</td>
+<td>[Nama Dosen]</td>
+</tr>
+<tr>
+<td>Tanggal</td>
+<td>7 November 2026</td>
+</tr>
+<tr>
+<td>Repository GitHub</td>
+<td>[URL Repository GitHub]</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<hr>
+<h2>BAB I — PENDAHULUAN</h2>
+<h3>1.1 Latar Belakang</h3>
+<p>Aplikasi perpustakaan melibatkan beberapa area bisnis yang berbeda: pengelolaan data buku,
+pengelolaan anggota, serta proses peminjaman dan pengembalian. Pada praktik sebelumnya, seluruh
+logika sering ditempatkan dalam satu struktur yang bercampur. Ketika jumlah fitur bertambah,
+pendekatan tersebut menyulitkan pemeliharaan karena batas tanggung jawab antar bagian menjadi kabur.</p>
+<p>Praktikum Pertemuan 6 memperkenalkan <strong>modular monolith</strong> dan <strong>Domain-Driven Design (DDD)</strong>.
+Aplikasi tetap berjalan sebagai satu kesatuan (satu proses Laravel dan satu database), tetapi
+kode dipisahkan menjadi beberapa <strong>bounded context</strong> dengan tanggung jawab yang jelas. Setiap
+context memiliki model, migration, route, dan service sendiri. Komunikasi lintas context dibatasi
+melalui <strong>contract</strong> sehingga ketergantungan antar modul tetap terkendali.</p>
+<p>Sistem yang dibangun pada laporan ini adalah <strong>Sistem Perpustakaan</strong> dengan tiga bounded context:
+<strong>Catalog</strong> (buku, penulis, kategori, penerbit), <strong>Membership</strong> (anggota, role, keanggotaan), dan
+<strong>Circulation</strong> (peminjaman, pengembalian, denda). Aplikasi juga menerapkan relasi database lanjutan,
+optimasi query, transaksi atomik, soft delete, domain event, dan Value Object.</p>
+<h3>1.2 Rumusan Masalah</h3>
+<ol>
+<li>Bagaimana merancang struktur modular monolith dengan pemisahan bounded context yang jelas?</li>
+<li>Bagaimana mengimplementasikan relasi Eloquent lanjutan (Many-to-Many dengan pivot, self-referencing,
+   dan HasMany) pada sistem perpustakaan?</li>
+<li>Bagaimana menjaga konsistensi data saat peminjaman buku menggunakan transaksi database?</li>
+<li>Bagaimana mengoptimalkan query untuk menghindari masalah N+1?</li>
+<li>Bagaimana menerapkan soft delete, restore, domain event, dan Value Object dalam studi kasus nyata?</li>
+</ol>
+<h3>1.3 Tujuan</h3>
+<ol>
+<li>Membangun aplikasi Laravel dengan struktur modular per bounded context.</li>
+<li>Mengimplementasikan relasi database lanjutan beserta bukti pada antarmuka.</li>
+<li>Menerapkan transaksi atomik dan rollback pada proses peminjaman.</li>
+<li>Mengukur dan mengurangi jumlah query menggunakan eager loading dan query scope.</li>
+<li>Menerapkan soft delete/restore, domain event, Value Object ISBN, dan Value Object Denda.</li>
+<li>Menyediakan pengujian otomatis untuk memverifikasi seluruh aturan bisnis utama.</li>
+</ol>
+<h3>1.4 Manfaat</h3>
+<ul>
+<li><strong>Bagi mahasiswa:</strong> memahami penerapan DDD dan modular monolith pada proyek Laravel nyata.</li>
+<li><strong>Bagi pengguna:</strong> memperoleh aplikasi perpustakaan yang mencatat peminjaman, stok, denda, dan
+  riwayat secara konsisten.</li>
+<li><strong>Bagi pengembangan selanjutnya:</strong> struktur modul memudahkan penambahan fitur tanpa mengubah
+  seluruh basis kode.</li>
+</ul>
+<h3>1.5 Batasan</h3>
+<ul>
+<li>Autentikasi menggunakan Laravel Breeze yang sudah tersedia; fokus praktikum pada tiga bounded
+  context perpustakaan.</li>
+<li>Database default menggunakan SQLite; skema dirancang agar tetap kompatibel dengan MySQL/PostgreSQL.</li>
+<li>Pembayaran denda hanya menandai status lunas (belum terintegrasi payment gateway).</li>
+<li>Notifikasi domain event ditulis ke file log, belum dikirim melalui email/queue.</li>
+</ul>
+<hr>
+<h2>BAB II — LANDASAN TEORI</h2>
+<h3>2.1 Modular Monolith</h3>
+<p>Modular monolith adalah aplikasi yang di-deploy sebagai satu unit, tetapi kode internalnya dibagi
+menjadi modul-modul dengan batas tanggung jawab yang tegas. Keuntungannya: operasional sederhana
+seperti monolith, namun keteraturan kode mendekati arsitektur mikroservis.</p>
+<p>Pada Laravel, modularitas diterapkan melalui namespace <code>Modules\*</code>, service provider per modul,
+serta pemisahan migration, route, dan view.</p>
+<h3>2.2 Domain-Driven Design dan Bounded Context</h3>
+<p>DDD menekankan pemodelan perangkat lunak berdasarkan bahasa dan aturan domain. <strong>Bounded context</strong>
+adalah batas di mana sebuah model dan istilah memiliki makna yang konsisten. Pada sistem ini:</p>
+<ul>
+<li><strong>Catalog</strong> berbicara tentang buku, stok, penulis, penerbit, dan kategori.</li>
+<li><strong>Membership</strong> berbicara tentang anggota, role, dan masa keanggotaan.</li>
+<li><strong>Circulation</strong> berbicara tentang peminjaman, pengembalian, denda, dan status peminjaman.</li>
+</ul>
+<p>Karena <code>Book</code> adalah milik Catalog dan <code>Member</code> adalah milik Membership, context Circulation tidak
+mengakses model tersebut secara langsung. Circulation memakai <code>BookServiceInterface</code> dan
+<code>MemberServiceInterface</code> yang didefinisikan di <strong>Shared Kernel</strong>.</p>
+<h3>2.3 Relasi Eloquent</h3>
+<ul>
+<li><strong>One-to-Many / HasMany:</strong> satu peminjaman memiliki banyak item (<code>Loan::items()</code>).</li>
+<li><strong>Many-to-Many:</strong> buku memiliki banyak kategori dan kategori memiliki banyak buku, dengan pivot
+  <code>book_category</code> yang menyimpan <code>added_at</code>.</li>
+<li><strong>Self-referencing:</strong> kategori dapat memiliki induk dan anak (<code>Category::parent()</code> dan
+  <code>Category::children()</code>).</li>
+</ul>
+<h3>2.4 N+1 Query dan Eager Loading</h3>
+<p>N+1 terjadi saat relasi diakses di dalam loop sehingga menambah satu query per baris. Eager loading
+(<code>with()</code>) memuat relasi dalam satu query tambahan sehingga jumlah query tidak tumbuh linear
+terhadap jumlah data.</p>
+<h3>2.5 Transaksi Database</h3>
+<p>Transaksi memastikan sekumpulan operasi diperlakukan sebagai satu kesatuan (ACID). Jika satu operasi
+gagal, seluruh perubahan dibatalkan. Laravel menyediakan <code>DB::transaction()</code> dan
+<code>lockForUpdate()</code> untuk mengunci baris selama transaksi.</p>
+<h3>2.6 Soft Delete</h3>
+<p>Soft delete tidak menghapus baris secara fisik, melainkan mengisi kolom <code>deleted_at</code>. Eloquent
+menyediakan trait <code>SoftDeletes</code>, method <code>withTrashed()</code>, <code>onlyTrashed()</code>, dan <code>restore()</code>.</p>
+<h3>2.7 Domain Event</h3>
+<p>Domain event adalah objek yang menandai terjadinya peristiwa bisnis, misalnya <code>BookBorrowed</code>.
+Event dipisahkan dari aksi utamanya; listener menangani efek samping seperti pencatatan log.</p>
+<h3>2.8 Value Object</h3>
+<p>Value Object adalah objek immutable yang divalidasi saat dibuat dan tidak memiliki identitas
+sendiri. Pada sistem ini terdapat <code>ISBN</code> (validasi checksum) dan <code>Denda</code> (perhitungan otomatis).</p>
+<hr>
+<h2>BAB III — ANALISIS DAN PERANCANGAN</h2>
+<h3>3.1 Kebutuhan Fungsional</h3>
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>Kebutuhan</th>
+<th>Context</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F-01</td>
+<td>CRUD buku, penulis, penerbit, kategori</td>
+<td>Catalog</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-02</td>
+<td>Pencarian dan filter buku (kategori, penulis, penerbit, ketersediaan)</td>
+<td>Catalog</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-03</td>
+<td>Validasi ISBN-10/ISBN-13</td>
+<td>Catalog</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-04</td>
+<td>CRUD anggota, role, dan riwayat keanggotaan</td>
+<td>Membership</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-05</td>
+<td>Pengecekan kelayakan anggota sebelum meminjam</td>
+<td>Membership</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-06</td>
+<td>Pembuatan peminjaman beserta detail item</td>
+<td>Circulation</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-07</td>
+<td>Pengurangan stok otomatis dan rollback bila gagal</td>
+<td>Circulation + Catalog</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-08</td>
+<td>Pengembalian buku dan pengembalian stok</td>
+<td>Circulation + Catalog</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-09</td>
+<td>Perhitungan denda otomatis</td>
+<td>Circulation</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-10</td>
+<td>Pembayaran denda</td>
+<td>Circulation</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-11</td>
+<td>Soft delete dan restore buku/anggota/peminjaman</td>
+<td>Semua context terkait</td>
+<td>Selesai</td>
+</tr>
+<tr>
+<td>F-12</td>
+<td>Log domain event peminjaman/pengembalian</td>
+<td>Circulation</td>
+<td>Selesai</td>
+</tr>
+</tbody>
+</table>
+<h3>3.2 Kebutuhan Non-Fungsional</h3>
+<table>
+<thead>
+<tr>
+<th>Aspek</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keamanan</td>
+<td>Route tulis hanya untuk <code>role:admin</code>; validasi request di server</td>
+</tr>
+<tr>
+<td>Konsistensi</td>
+<td>Transaksi ACID + row lock pada stok dan status anggota</td>
+</tr>
+<tr>
+<td>Performa</td>
+<td>Eager loading pada seluruh halaman daftar; query scope untuk filter</td>
+</tr>
+<tr>
+<td>Maintainability</td>
+<td>Batas context dijaga contract; service provider per modul</td>
+</tr>
+<tr>
+<td>Testability</td>
+<td>Unit test Value Object dan feature test alur bisnis</td>
+</tr>
+<tr>
+<td>Auditability</td>
+<td>Snapshot data, riwayat status, dan log event</td>
+</tr>
+</tbody>
+</table>
+<h3>3.3 Arsitektur Bounded Context</h3>
+<pre><code class="language-text">                         +---------------------------+
+                         |       Shared Kernel       |
+                         |  BookServiceInterface     |
+                         |  MemberServiceInterface   |
+                         |  Domain Exceptions        |
+                         +------------+--------------+
+                                      |
+              +-----------------------+-----------------------+
+              |                       |                       |
+    +---------v---------+   +---------v---------+   +---------v---------+
+    |   Catalog         |   |   Membership      |   |   Circulation     |
+    |-------------------|   |-------------------|   |-------------------|
+    | Author            |   | Member            |   | Loan              |
+    | Publisher         |   | Role              |   | LoanItem          |
+    | Category (self)   |   | Membership        |   | Fine              |
+    | Book              |   | MemberService     |   | LoanStatusHistory |
+    | BookService       |   |                   |   | LoanService       |
+    | ISBN VO           |   |                   |   | Denda VO          |
+    +---------+---------+   +---------+---------+   | BookBorrowed      |
+              ^                       ^             | BookReturned      |
+              |                       |             +---------+---------+
+              |                       |                       |
+              +-------- contract -----+-------- contract ----+
+                                      |
+                         Circulation hanya memanggil contract,
+                         bukan model internal Catalog/Membership.
+</code></pre>
+<h3>3.4 Struktur Modul</h3>
+<pre><code class="language-text">app/Modules/
+├── Shared/
+│   ├── Contracts/BookServiceInterface.php
+│   ├── Contracts/MemberServiceInterface.php
+│   └── Exceptions/
+├── Catalog/
+│   ├── Controllers/  Models/  Requests/  Rules/
+│   ├── Services/BookService.php
+│   ├── ValueObjects/ISBN.php
+│   ├── Migrations/  Providers/  routes/
+├── Membership/
+│   ├── Controllers/  Models/  Requests/
+│   ├── Services/MemberService.php
+│   ├── Migrations/  Providers/  routes/
+└── Circulation/
+    ├── Controllers/  Models/  Requests/
+    ├── Events/  Listeners/
+    ├── Services/LoanService.php
+    ├── ValueObjects/Denda.php
+    ├── Migrations/  Providers/  routes/
+</code></pre>
+<p>Setiap provider memanggil <code>loadMigrationsFrom()</code> dan <code>loadRoutesFrom()</code>. Provider didaftarkan pada
+<code>bootstrap/providers.php</code>. Binding contract dilakukan di <code>AppServiceProvider</code>:</p>
+<pre><code class="language-php">$this-&gt;app-&gt;bind(BookServiceInterface::class, BookService::class);
+$this-&gt;app-&gt;bind(MemberServiceInterface::class, MemberService::class);
+</code></pre>
+<h3>3.5 Perancangan Database</h3>
+<p>Ringkasan tabel:</p>
+<table>
+<thead>
+<tr>
+<th>Tabel</th>
+<th>Context</th>
+<th>Keterangan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>authors</code></td>
+<td>Catalog</td>
+<td>Penulis buku</td>
+</tr>
+<tr>
+<td><code>publishers</code></td>
+<td>Catalog</td>
+<td>Penerbit buku</td>
+</tr>
+<tr>
+<td><code>categories</code></td>
+<td>Catalog</td>
+<td>Kategori dengan <code>parent_id</code> (self-referencing)</td>
+</tr>
+<tr>
+<td><code>books</code></td>
+<td>Catalog</td>
+<td>Data buku, stok, ISBN unik, soft delete</td>
+</tr>
+<tr>
+<td><code>book_category</code></td>
+<td>Catalog</td>
+<td>Pivot Many-to-Many + <code>added_at</code></td>
+</tr>
+<tr>
+<td><code>roles</code></td>
+<td>Membership</td>
+<td>Role anggota</td>
+</tr>
+<tr>
+<td><code>members</code></td>
+<td>Membership</td>
+<td>Anggota, status, kuota pinjaman, soft delete</td>
+</tr>
+<tr>
+<td><code>memberships</code></td>
+<td>Membership</td>
+<td>Riwayat keanggotaan</td>
+</tr>
+<tr>
+<td><code>member_role</code></td>
+<td>Membership</td>
+<td>Pivot Many-to-Many + <code>assigned_at</code></td>
+</tr>
+<tr>
+<td><code>loans</code></td>
+<td>Circulation</td>
+<td>Header peminjaman, snapshot nama anggota, soft delete</td>
+</tr>
+<tr>
+<td><code>loan_items</code></td>
+<td>Circulation</td>
+<td>Detail buku yang dipinjam, snapshot judul/ISBN</td>
+</tr>
+<tr>
+<td><code>fines</code></td>
+<td>Circulation</td>
+<td>Denda keterlambatan</td>
+</tr>
+<tr>
+<td><code>loan_status_histories</code></td>
+<td>Circulation</td>
+<td>Audit trail perubahan status</td>
+</tr>
+</tbody>
+</table>
+<p>Relasi utama:</p>
+<pre><code class="language-text">authors 1 ---- * books * ---- * categories
+                    |                 |
+                    |                 +-- parent_id (self)
+                    |
+publishers 1 --- * books
+
+members 1 ---- * loans 1 ---- * loan_items * ---- 1 books
+   |              |
+   |              +---- * fines
+   |              +---- * loan_status_histories
+   +---- * memberships
+   +---- * member_role * ---- 1 roles
+</code></pre>
+<p>Kardinalitas dan bukti implementasi:</p>
+<table>
+<thead>
+<tr>
+<th>Relasi</th>
+<th>Implementasi</th>
+<th>Bukti UI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Book ↔ Category (M:N)</td>
+<td><code>belongsToMany</code> + <code>withPivot('added_at')</code></td>
+<td>Detail buku menampilkan <code>added_at</code>; form buku menampilkan checkbox kategori</td>
+</tr>
+<tr>
+<td>Category → sub-category</td>
+<td><code>parent()</code>/<code>children()</code></td>
+<td>Kolom Induk dan Sub-kategori pada halaman kategori</td>
+</tr>
+<tr>
+<td>Loan → LoanItem (1:N)</td>
+<td><code>hasMany</code></td>
+<td>Detail peminjaman menampilkan daftar item</td>
+</tr>
+<tr>
+<td>Member ↔ Role (M:N)</td>
+<td><code>belongsToMany</code> + <code>withPivot('assigned_at')</code></td>
+<td>Detail anggota menampilkan checkbox role</td>
+</tr>
+<tr>
+<td>Member → Membership (1:N)</td>
+<td><code>hasMany</code></td>
+<td>Detail anggota menampilkan riwayat keanggotaan</td>
+</tr>
+</tbody>
+</table>
+<h3>3.6 Alur Peminjaman</h3>
+<pre><code class="language-text">Admin
+  |
+  v
+LoanController@store
+  |
+  v
+LoanService@borrow  (DB::transaction)
+  |
+  +--&gt; MemberService: getMemberForLoan, isEligibleToBorrow
+  |
+  +--&gt; Loan::create (snapshot member_name, due_at = now + 7 hari)
+  |
+  +--&gt; untuk setiap item:
+  |      BookService: getBookForLoan, isStockAvailable
+  |      BookService: reduceStock (lockForUpdate + decrement)
+  |      LoanItem::create (snapshot book_title, book_isbn)
+  |
+  +--&gt; MemberService: markAsBorrowing (active_loans + 1)
+  |
+  +--&gt; LoanStatusHistory::create
+  |
+  +--&gt; event(BookBorrowed) -&gt; LogBookBorrowed
+  |
+  v
+COMMIT -&gt; redirect detail
+</code></pre>
+<p>Jika stok tidak cukup, exception dilempar dan seluruh perubahan di-rollback.</p>
+<h3>3.7 Matriks Akses</h3>
+<table>
+<thead>
+<tr>
+<th>Halaman/Aksi</th>
+<th>Admin</th>
+<th>User</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daftar &amp; detail buku/kategori/penulis/penerbit</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Tambah/edit/hapus/restore data master</td>
+<td>✅</td>
+<td>❌ 403</td>
+</tr>
+<tr>
+<td>Daftar &amp; detail anggota/role</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Tambah/edit/hapus anggota, role, keanggotaan</td>
+<td>✅</td>
+<td>❌ 403</td>
+</tr>
+<tr>
+<td>Daftar &amp; detail peminjaman/denda</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Buat/kembalikan/hapus/restore peminjaman, bayar denda</td>
+<td>✅</td>
+<td>❌ 403</td>
+</tr>
+</tbody>
+</table>
+<h3>3.8 Rancangan Pengujian</h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Fokus</th>
+<th>File</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit</td>
+<td>ISBN dan Denda</td>
+<td><code>tests/Unit/IsbnTest.php</code>, <code>tests/Unit/DendaTest.php</code></td>
+</tr>
+<tr>
+<td>Feature</td>
+<td>Transaksi peminjaman, rollback, event</td>
+<td><code>tests/Feature/Library/LoanTransactionTest.php</code></td>
+</tr>
+<tr>
+<td>Feature</td>
+<td>Soft delete/restore dan otorisasi</td>
+<td><code>tests/Feature/Library/SoftDeleteRestoreTest.php</code></td>
+</tr>
+<tr>
+<td>Feature</td>
+<td>Jumlah query dan scope</td>
+<td><code>tests/Feature/Library/QueryOptimizationTest.php</code></td>
+</tr>
+<tr>
+<td>Feature</td>
+<td>Smoke test seluruh halaman</td>
+<td><code>tests/Feature/Library/PageSmokeTest.php</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>BAB IV — IMPLEMENTASI DAN PENGUJIAN</h2>
+<h3>4.1 Lingkungan Pengembangan</h3>
+<table>
+<thead>
+<tr>
+<th>Komponen</th>
+<th>Versi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PHP</td>
+<td>8.5.0</td>
+</tr>
+<tr>
+<td>Laravel</td>
+<td>13.38.0</td>
+</tr>
+<tr>
+<td>Composer</td>
+<td>2.8.12</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>24.18.0</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>SQLite</td>
+</tr>
+<tr>
+<td>Browser</td>
+<td>Chromium/Edge</td>
+</tr>
+</tbody>
+</table>
+<h3>4.2 Langkah Menjalankan</h3>
+<pre><code class="language-bash">composer install
+php artisan migrate:fresh --seed
+npm install
+npm run build
+php artisan serve
+</code></pre>
+<p>Akun demo:</p>
+<ul>
+<li>Admin: <code>admin@example.com</code> / <code>password123</code></li>
+<li>User: <code>user@example.com</code> / <code>password123</code></li>
+</ul>
+<p>Seeder menghasilkan 40 buku, 15 anggota, 11 peminjaman, 12 item, dan 2 denda.</p>
+<h3>4.3 Implementasi Catalog</h3>
+<h4>4.3.1 Katalog Buku</h4>
+<p>Halaman katalog menampilkan relasi penulis, penerbit, dan kategori. Pencarian/filter menggunakan
+query scope dan seluruh relasi di-eager load untuk menghindari N+1.</p>
+<p><img alt="Katalog buku" src="docs/screenshots/01-katalog-buku.png"></p>
+<p><em>Gambar 4.1 — Daftar buku dengan filter pencarian, kategori, penulis, penerbit, dan status stok.</em></p>
+<h4>4.3.2 Detail Buku</h4>
+<p>Detail buku menampilkan ISBN terformat, stok (berwarna merah bila di bawah ambang), serta daftar
+kategori beserta <code>added_at</code> dari pivot.</p>
+<p><img alt="Detail buku" src="docs/screenshots/02-detail-buku.png"></p>
+<p><em>Gambar 4.2 — Detail buku; kategori menampilkan relasi Many-to-Many dan pivot <code>added_at</code>.</em></p>
+<h4>4.3.3 Form Tambah Buku</h4>
+<p>Form menggunakan checkbox kategori berjenjang (induk dan sub-kategori) serta validasi ISBN melalui
+Value Object.</p>
+<p><img alt="Form tambah buku" src="docs/screenshots/03-form-tambah-buku.png"></p>
+<p><em>Gambar 4.3 — Form tambah buku dengan kategori Many-to-Many.</em></p>
+<h4>4.3.4 Kategori (Self-Referencing)</h4>
+<p>Kategori memiliki induk dan sub-kategori. Halaman ini juga menampilkan jumlah buku per kategori.</p>
+<p><img alt="Kategori" src="docs/screenshots/04-kategori.png"></p>
+<p><em>Gambar 4.4 — Kategori dengan relasi self-referencing dan jumlah buku.</em></p>
+<h4>4.3.5 Penulis dan Penerbit</h4>
+<p><img alt="Penulis" src="docs/screenshots/05-penulis.png"></p>
+<p><em>Gambar 4.5 — Daftar penulis beserta jumlah buku.</em></p>
+<p><img alt="Penerbit" src="docs/screenshots/06-penerbit.png"></p>
+<p><em>Gambar 4.6 — Daftar penerbit beserta jumlah buku.</em></p>
+<h3>4.4 Implementasi Membership</h3>
+<h4>4.4.1 Daftar Anggota</h4>
+<p>Menampilkan nomor keanggotaan, status, kuota peminjaman, dan role. Relasi <code>memberships</code> dan <code>roles</code>
+di-eager load.</p>
+<p><img alt="Daftar anggota" src="docs/screenshots/07-anggota.png"></p>
+<p><em>Gambar 4.7 — Daftar anggota dengan status dan kuota peminjaman.</em></p>
+<h4>4.4.2 Detail Anggota</h4>
+<p>Detail anggota menampilkan role (Many-to-Many dengan <code>assigned_at</code>) dan riwayat keanggotaan
+(HasMany), serta form penambahan keanggotaan.</p>
+<p><img alt="Detail anggota" src="docs/screenshots/08-detail-anggota.png"></p>
+<p><em>Gambar 4.8 — Detail anggota, role, dan riwayat keanggotaan.</em></p>
+<h4>4.4.3 Role</h4>
+<p><img alt="Role" src="docs/screenshots/09-role.png"></p>
+<p><em>Gambar 4.9 — Daftar role beserta jumlah anggota.</em></p>
+<h3>4.5 Implementasi Circulation</h3>
+<h4>4.5.1 Daftar Peminjaman</h4>
+<p>Menampilkan nomor peminjaman, anggota (snapshot), tanggal pinjam, jatuh tempo, jumlah item, status,
+dan denda. Peminjaman yang melewati jatuh tempo ditandai <strong>Terlambat</strong>.</p>
+<p><img alt="Daftar peminjaman" src="docs/screenshots/10-peminjaman.png"></p>
+<p><em>Gambar 4.10 — Daftar peminjaman; baris pertama berstatus Terlambat.</em></p>
+<h4>4.5.2 Form Peminjaman</h4>
+<p>Form hanya menampilkan anggota yang eligible dan buku yang tersedia. Pengguna dapat menambah
+beberapa baris buku.</p>
+<p><img alt="Form peminjaman" src="docs/screenshots/11-form-peminjaman.png"></p>
+<p><em>Gambar 4.11 — Form peminjaman dengan beberapa baris buku.</em></p>
+<h4>4.5.3 Detail Peminjaman</h4>
+<p>Detail menampilkan snapshot anggota, status, jatuh tempo, total denda, item (snapshot judul/ISBN),
+daftar denda, dan riwayat status.</p>
+<p><img alt="Detail peminjaman" src="docs/screenshots/12-detail-peminjaman.png"></p>
+<p><em>Gambar 4.12 — Detail peminjaman: status Terlambat, dua item, dan riwayat status.</em></p>
+<h4>4.5.4 Denda</h4>
+<p>Dua peminjaman yang dikembalikan terlambat 3 hari menghasilkan denda Rp 3.000 masing-masing
+(total Rp 6.000). Admin dapat menandai denda sebagai lunas.</p>
+<p><img alt="Denda" src="docs/screenshots/13-denda.png"></p>
+<p><em>Gambar 4.13 — Daftar denda dengan total belum dibayar Rp 6.000.</em></p>
+<h3>4.6 Soft Delete dan Restore</h3>
+<p>Buku, anggota, peminjaman, dan kategori menggunakan <code>SoftDeletes</code>. Admin dapat melihat data
+terhapus dan memulihkannya.</p>
+<p><img alt="Buku terhapus" src="docs/screenshots/14-buku-terhapus.png"></p>
+<p><em>Gambar 4.14 — Daftar buku terhapus dengan tombol Restore.</em></p>
+<p>Implementasi pada model:</p>
+<pre><code class="language-php">use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Book extends Model
+{
+    use SoftDeletes;
+
+    // ...
+}
+</code></pre>
+<p>Route restore:</p>
+<pre><code class="language-php">Route::post('books/{id}/restore', [BookController::class, 'restore'])-&gt;name('books.restore');
+</code></pre>
+<h3>4.7 Value Object ISBN</h3>
+<p><code>ISBN</code> menormalisasi input (menghapus spasi/tanda hubung), memvalidasi checksum ISBN-10/ISBN-13,
+dan memastikan ISBN-13 berawalan 978/979.</p>
+<pre><code class="language-php">final class ISBN
+{
+    public function __construct(string $value)
+    {
+        $normalized = strtoupper(preg_replace('/[\s\-]/', '', trim($value)) ?? '');
+
+        if (! preg_match('/^(?:\d{9}[\dX]|\d{13})$/', $normalized)) {
+            throw new InvalidArgumentException(&quot;Format ISBN tidak valid: '{$value}'.&quot;);
+        }
+
+        // validasi checksum ISBN-10 / ISBN-13 ...
+    }
+}
+</code></pre>
+<p>Contoh valid: <code>978-0-306-40615-7</code> → <code>9780306406157</code>; <code>0-8044-2957-X</code> → <code>080442957X</code>.</p>
+<h3>4.8 Value Object Denda</h3>
+<p>Denda dihitung otomatis dengan tarif Rp 1.000 per hari dan pembulatan ke atas untuk keterlambatan
+sebagian hari.</p>
+<pre><code class="language-php">public static function between(
+    DateTimeInterface $dueAt,
+    DateTimeInterface $returnedAt,
+    float $ratePerDay = self::DEFAULT_RATE_PER_DAY,
+): self {
+    $secondsLate = $returnedAt-&gt;getTimestamp() - $dueAt-&gt;getTimestamp();
+
+    if ($secondsLate &lt;= 0) {
+        return self::fromDaysLate(0, $ratePerDay);
+    }
+
+    $daysLate = (int) ceil($secondsLate / 86400);
+
+    return self::fromDaysLate($daysLate, $ratePerDay);
+}
+</code></pre>
+<p>Contoh: terlambat 3 hari → <code>3 × Rp 1.000 = Rp 3.000</code>.</p>
+<h3>4.9 Transaksi Atomik dan Rollback</h3>
+<p><code>LoanService@borrow</code> membungkus seluruh operasi dalam <code>DB::transaction</code>. Stok dikurangi dengan
+<code>lockForUpdate()</code> untuk mencegah race condition.</p>
+<pre><code class="language-php">return DB::transaction(function () use ($memberId, $items, $notes, $changedBy) {
+    $member = $this-&gt;memberService-&gt;getMemberForLoan($memberId);
+
+    if (! $this-&gt;memberService-&gt;isEligibleToBorrow($memberId)) {
+        throw new MemberNotEligibleException(/* ... */);
+    }
+
+    $loan = Loan::create([/* ... */]);
+
+    foreach ($items as $item) {
+        $book = $this-&gt;bookService-&gt;getBookForLoan($bookId);
+
+        if (! $this-&gt;bookService-&gt;isStockAvailable($bookId, $quantity)) {
+            throw new InsufficientStockException($book['title'], $book['stock'], $quantity);
+        }
+
+        $this-&gt;bookService-&gt;reduceStock($bookId, $quantity);
+        LoanItem::create([/* snapshot */]);
+    }
+
+    $this-&gt;memberService-&gt;markAsBorrowing($memberId);
+    LoanStatusHistory::create([/* ... */]);
+    event(new BookBorrowed($loan));
+});
+</code></pre>
+<p>Feature test memverifikasi bahwa ketika stok tidak cukup: <code>loans</code>, <code>loan_items</code>, stok, dan status
+anggota tidak berubah.</p>
+<h3>4.10 Domain Event dan Listener</h3>
+<p>Event <code>BookBorrowed</code> dan <code>BookReturned</code> ditangani listener yang menulis ke
+<code>storage/logs/library-events.log</code>.</p>
+<pre><code class="language-php">class BookBorrowed
+{
+    public function __construct(public Loan $loan) {}
+}
+
+class LogBookBorrowed
+{
+    public function handle(BookBorrowed $event): void
+    {
+        Log::channel('library')-&gt;info('BookBorrowed', [
+            'loan' =&gt; $event-&gt;loan-&gt;loan_number,
+            'member' =&gt; $event-&gt;loan-&gt;member_name,
+            'items' =&gt; $event-&gt;loan-&gt;items-&gt;count(),
+            'borrowed_at' =&gt; $event-&gt;loan-&gt;borrowed_at-&gt;toDateTimeString(),
+            'due_at' =&gt; $event-&gt;loan-&gt;due_at-&gt;toDateTimeString(),
+        ]);
+    }
+}
+</code></pre>
+<p>Contoh isi log:</p>
+<pre><code class="language-text">[2026-11-07 07:44:30] BookReturned | loan=LN-20261107-JDZAF9 | member=Bryon Williamson (#7)
+    | returned_at=2026-11-07 07:44:30 | days_late=3 | fine=Rp 3.000
+[2026-11-07 07:44:30] BookBorrowed | loan=LN-20261107-7IUKFF | member=Dr. Wilber Kulas II (#11)
+    | items=1 | borrowed_at=2026-11-07 07:44:30 | due_at=2026-11-14 07:44:30
+</code></pre>
+<h3>4.11 Optimasi Query</h3>
+<p>Perintah <code>php artisan library:query-demo</code> mengukur jumlah query pada data demo:</p>
+<table>
+<thead>
+<tr>
+<th>Skenario</th>
+<th style="text-align: right;">Tanpa eager loading</th>
+<th style="text-align: right;">Dengan eager loading</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daftar peminjaman + item</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td>Daftar buku + penulis + kategori</td>
+<td style="text-align: right;">81</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+<p>Penurunan: <strong>83%</strong> untuk peminjaman dan <strong>96%</strong> untuk buku. Detail dan output lengkap ada di
+<code>docs/QUERY_OPTIMIZATION.md</code>.</p>
+<p>Eager loading diterapkan di seluruh controller daftar/detail, misalnya:</p>
+<pre><code class="language-php">$loans = Loan::with(['items', 'fines', 'member'])
+    -&gt;withCount('items')
+    -&gt;latest('borrowed_at')
+    -&gt;paginate(15);
+
+$books = Book::with(['author', 'publisher', 'categories'])
+    -&gt;available()
+    -&gt;search($keyword)
+    -&gt;inCategory($categoryId)
+    -&gt;paginate(12);
+</code></pre>
+<h3>4.12 Pengujian Otomatis</h3>
+<pre><code class="language-text">Tests:    57 passed (181 assertions)
+Duration: ~8.5s
+</code></pre>
+<p>Rincian:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Jumlah fokus</th>
+<th>Hasil</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/Unit/IsbnTest.php</code></td>
+<td>7 test ISBN</td>
+<td>Lulus</td>
+</tr>
+<tr>
+<td><code>tests/Unit/DendaTest.php</code></td>
+<td>6 test denda</td>
+<td>Lulus</td>
+</tr>
+<tr>
+<td><code>tests/Feature/Library/LoanTransactionTest.php</code></td>
+<td>5 test transaksi/event</td>
+<td>Lulus</td>
+</tr>
+<tr>
+<td><code>tests/Feature/Library/SoftDeleteRestoreTest.php</code></td>
+<td>7 test soft delete/otorisasi</td>
+<td>Lulus</td>
+</tr>
+<tr>
+<td><code>tests/Feature/Library/QueryOptimizationTest.php</code></td>
+<td>4 test query/scope</td>
+<td>Lulus</td>
+</tr>
+<tr>
+<td><code>tests/Feature/Library/PageSmokeTest.php</code></td>
+<td>2 test smoke halaman</td>
+<td>Lulus</td>
+</tr>
+<tr>
+<td>Test bawaan Breeze/Products</td>
+<td>—</td>
+<td>Lulus</td>
+</tr>
+</tbody>
+</table>
+<p>Total <strong>57 test, 181 assertion, semuanya lulus</strong>.</p>
+<h3>4.13 Pengujian Manual</h3>
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>Skenario</th>
+<th>Hasil</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Login admin dan akses seluruh menu</td>
+<td>Berhasil</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Login user biasa; akses <code>/books/create</code></td>
+<td>403 Forbidden</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Filter/pencarian buku</td>
+<td>Berhasil, query string dipertahankan</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Buat peminjaman (anggota eligible + buku tersedia)</td>
+<td>Berhasil; stok berkurang, status anggota berubah</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Rollback stok tidak cukup</td>
+<td>Berhasil; tidak ada data tersisa</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Pengembalian tepat waktu</td>
+<td>Berhasil; stok kembali, denda 0</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Pengembalian terlambat 3 hari</td>
+<td>Berhasil; denda Rp 3.000</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Bayar denda</td>
+<td>Berhasil; status menjadi <code>paid</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>Soft delete + restore buku</td>
+<td>Berhasil</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Lihat halaman terhapus anggota/peminjaman</td>
+<td>Berhasil</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Log event <code>BookBorrowed</code>/<code>BookReturned</code></td>
+<td>Bertambah sesuai aksi</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Demo query N+1 vs eager</td>
+<td>12 vs 2; 81 vs 3</td>
+</tr>
+</tbody>
+</table>
+<h3>4.14 Kendala dan Solusi</h3>
+<table>
+<thead>
+<tr>
+<th>Kendala</th>
+<th>Penyebab</th>
+<th>Solusi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Factory model <code>Modules\*</code> tidak ditemukan</td>
+<td>Resolver default mengasumsikan namespace <code>App\Models</code></td>
+<td><code>Factory::guessFactoryNamesUsing()</code> di <code>AppServiceProvider</code></td>
+</tr>
+<tr>
+<td><code>/books/create</code> 404</td>
+<td>Route <code>books/{book}</code> terdaftar lebih dulu</td>
+<td>Group route admin (create/store) didaftarkan sebelum route read-only</td>
+</tr>
+<tr>
+<td>Denda hasil seeder selalu 0</td>
+<td><code>Collection::slice()</code> mempertahankan key sehingga indeks bukan 0</td>
+<td>Tambahkan <code>-&gt;values()</code> sebelum loop</td>
+</tr>
+<tr>
+<td>Halaman kategori 500</td>
+<td>Type hint <code>Illuminate\Http\Request</code> tanpa import di namespace modul</td>
+<td>Tambahkan <code>use Illuminate\Http\Request;</code></td>
+</tr>
+<tr>
+<td>Menu dropdown tidak sejajar</td>
+<td>Trigger dropdown tidak memiliki tinggi penuh nav</td>
+<td>Tambahkan <code>h-16 items-center</code> pada tombol trigger</td>
+</tr>
+<tr>
+<td>Build Vite gagal</td>
+<td>Optional native binding <code>@rolldown/binding-win32-x64-msvc</code> belum ada</td>
+<td><code>npm install</code> lalu <code>npm run build</code></td>
+</tr>
+<tr>
+<td><code>npm.ps1</code> diblokir</td>
+<td>Execution policy PowerShell</td>
+<td>Gunakan <code>npm.cmd</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>BAB V — PENUTUP</h2>
+<h3>5.1 Kesimpulan</h3>
+<ol>
+<li>Sistem perpustakaan berhasil dibangun sebagai <strong>modular monolith</strong> dengan tiga bounded context
+   (Catalog, Membership, Circulation) dan Shared Kernel berisi contract.</li>
+<li>Relasi lanjutan berhasil diterapkan: Many-to-Many <code>book_category</code> dengan <code>added_at</code>,
+   self-referencing kategori, HasMany <code>Loan → LoanItem</code>, serta Many-to-Many <code>member_role</code>.</li>
+<li>Transaksi database menjamin konsistensi peminjaman: stok, record peminjaman, detail item, dan
+   status anggota berubah bersama; kegagalan stok menyebabkan rollback total.</li>
+<li>Eager loading menurunkan jumlah query dari 12 menjadi 2 (peminjaman) dan 81 menjadi 3 (buku)
+   pada data demo.</li>
+<li>Soft delete/restore, domain event, dan Value Object ISBN/Denda berfungsi dan terverifikasi
+   melalui 57 test otomatis (181 assertion).</li>
+</ol>
+<h3>5.2 Saran</h3>
+<ol>
+<li>Tambahkan antrean (queue) untuk notifikasi domain event agar tidak membebani request.</li>
+<li>Pisahkan database per context bila skala aplikasi tumbuh (langkah menuju microservices).</li>
+<li>Tambahkan kebijakan (policy) yang lebih granular daripada middleware role.</li>
+<li>Integrasikan payment gateway untuk pembayaran denda.</li>
+<li>Tambahkan observability (metrics/log terstruktur) untuk memantau performa query di produksi.</li>
+</ol>
+<hr>
+<h2>DAFTAR PUSTAKA</h2>
+<ol>
+<li>Evans, E. (2003). <em>Domain-Driven Design: Tackling Complexity in the Heart of Software</em>.
+   Addison-Wesley.</li>
+<li>Fowler, M. (2014). <em>Microservices: A Definition of This New Architectural Term</em>.</li>
+<li>Laravel Documentation. <em>Eloquent: Relationships</em>. https://laravel.com/docs/eloquent-relationships</li>
+<li>Laravel Documentation. <em>Database: Query Builder &amp; Transactions</em>.
+   https://laravel.com/docs/queries</li>
+<li>Laravel Documentation. <em>Events</em>. https://laravel.com/docs/events</li>
+<li>Laravel Documentation. <em>Soft Deletes</em>. https://laravel.com/docs/eloquent#soft-deleting</li>
+<li>Module Praktikum Backend Development Pertemuan 6 (MP-BED-06).</li>
+</ol>
+<hr>
+<h2>LAMPIRAN</h2>
+<h3>A. Akun Demo</h3>
+<table>
+<thead>
+<tr>
+<th>Peran</th>
+<th>Email</th>
+<th>Password</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Admin</td>
+<td>admin@example.com</td>
+<td>password123</td>
+</tr>
+<tr>
+<td>User</td>
+<td>user@example.com</td>
+<td>password123</td>
+</tr>
+</tbody>
+</table>
+<h3>B. Perintah Penting</h3>
+<pre><code class="language-bash">php artisan migrate:fresh --seed
+php artisan test
+php artisan library:query-demo
+php artisan route:list
+php artisan serve
+</code></pre>
+<h3>C. Daftar Screenshot</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Keterangan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>01-katalog-buku.png</code></td>
+<td>Katalog buku + filter</td>
+</tr>
+<tr>
+<td><code>02-detail-buku.png</code></td>
+<td>Detail buku + pivot <code>added_at</code></td>
+</tr>
+<tr>
+<td><code>03-form-tambah-buku.png</code></td>
+<td>Form tambah buku</td>
+</tr>
+<tr>
+<td><code>04-kategori.png</code></td>
+<td>Kategori self-referencing</td>
+</tr>
+<tr>
+<td><code>05-penulis.png</code></td>
+<td>Daftar penulis</td>
+</tr>
+<tr>
+<td><code>06-penerbit.png</code></td>
+<td>Daftar penerbit</td>
+</tr>
+<tr>
+<td><code>07-anggota.png</code></td>
+<td>Daftar anggota</td>
+</tr>
+<tr>
+<td><code>08-detail-anggota.png</code></td>
+<td>Detail anggota + role</td>
+</tr>
+<tr>
+<td><code>09-role.png</code></td>
+<td>Daftar role</td>
+</tr>
+<tr>
+<td><code>10-peminjaman.png</code></td>
+<td>Daftar peminjaman</td>
+</tr>
+<tr>
+<td><code>11-form-peminjaman.png</code></td>
+<td>Form peminjaman</td>
+</tr>
+<tr>
+<td><code>12-detail-peminjaman.png</code></td>
+<td>Detail peminjaman + item</td>
+</tr>
+<tr>
+<td><code>13-denda.png</code></td>
+<td>Daftar denda</td>
+</tr>
+<tr>
+<td><code>14-buku-terhapus.png</code></td>
+<td>Soft delete + restore</td>
+</tr>
+</tbody>
+</table>
+<h3>D. Struktur Bukti Repositori</h3>
+<pre><code class="language-text">auth-monolith/
+├── app/Modules/            # implementasi bounded context
+├── tests/                  # unit &amp; feature test
+├── docs/
+│   ├── ARSITEKTUR.md
+│   ├── QUERY_OPTIMIZATION.md
+│   ├── PANDUAN_PENGUJIAN.md
+│   └── screenshots/
+├── LAPORAN.md
+├── LAPORAN.pdf
+└── README.md
+</code></pre>
+</body>
+</html>
